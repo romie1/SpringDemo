@@ -14,6 +14,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -37,9 +38,12 @@ public class Team {
     
     
 
-    @OneToOne(optional = false)
-  @JoinColumn(name="leader_id")
-    @JsonIgnoreProperties({"teams", "leadingTeam"})
+//    @OneToOne(optional = false)
+//    @JoinColumn(name="leader_id")
+//    @JsonIgnoreProperties(value =  "leadingTeam", allowSetters = true)
+    
+    @OneToOne(fetch = FetchType.LAZY)
+    @PrimaryKeyJoinColumn
     private Coder leader;
     
     

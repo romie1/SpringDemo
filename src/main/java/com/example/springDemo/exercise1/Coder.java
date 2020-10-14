@@ -12,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -30,7 +31,7 @@ public class Coder {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "CodGen")
     @SequenceGenerator(sequenceName = "CODER_SEQ", allocationSize = 1, name = "CodGen")
     @Column(name = "coder_id")
-    private int id;
+    private Long id;
 
     @Column(name = "first_name")
     private String firstName;
@@ -43,8 +44,10 @@ public class Coder {
 
     private Double salary;
     
-    @OneToOne(optional = true,  mappedBy = "leader")
-    @JsonIgnoreProperties({"coders", "leader"})
+    
+//    @JsonIgnoreProperties({ "leader"})
+//    @OneToOne(optional = true,  mappedBy = "leader")
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "leader", cascade = CascadeType.ALL)
     private Team leadingTeam;
     
    
@@ -55,15 +58,21 @@ public class Coder {
     public Coder() {
     }
 
-    public int getId() {
-        return id;
-    }
 
-    public void setId(int id) {
-        this.id = id;
-    }
 
-    public String getFirstName() {
+    public Long getId() {
+		return id;
+	}
+
+
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+
+
+	public String getFirstName() {
         return firstName;
     }
 

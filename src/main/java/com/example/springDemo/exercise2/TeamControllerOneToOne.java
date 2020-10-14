@@ -1,4 +1,4 @@
-package com.example.springDemo.exercise1;
+package com.example.springDemo.exercise2;
 
 import java.util.List;
 
@@ -6,58 +6,51 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 
-import com.example.springDemo.exercise2.CoderRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.springDemo.exercise1.Team;
+import com.example.springDemo.exercise1.TeamController;
+import com.example.springDemo.exercise1.TeamNotFoundException;
+import com.example.springDemo.exercise1.TeamRepository;
 
-
-@RestController
-@CrossOrigin(origins="http://localhost:4200")
-public class TeamController {
-	private static final Logger LOG = LoggerFactory.getLogger(TeamController.class);
+public class TeamControllerOneToOne {
+	private static final Logger LOG = LoggerFactory.getLogger(TeamControllerOneToOne.class);
 	
 	@Autowired
-	private TeamRepository teamRepository;
-	
-	@Autowired
-	private CoderRepository coderRepository;
+	private TeamRepository repository;
 	
 	@GetMapping("/teams")
 	public List<Team> getAll(){
 	LOG.debug("enter getAll method");
-		return teamRepository.findAll();
+		return repository.findAll();
 	}
 	
 	@GetMapping("/teams/{id}")
 	public Team get(@PathVariable Long id) {
 		LOG.debug("enter get method");
-		return teamRepository.findById(id).orElseThrow(() -> new TeamNotFoundException(id));
+		return repository.findById(id).orElseThrow(() -> new TeamNotFoundException(id));
 	}
 	
 	@PostMapping("/teams")
 	public Team create(@RequestBody Team newTeam) {
 		LOG.debug("enter create method");
-		return teamRepository.save(newTeam);
+		return repository.save(newTeam);
 	}
 	
 	@PutMapping("/teams/{id}")
 	public Team update(@RequestBody Team updatedTeam, @PathVariable Long id) {
 		LOG.debug("enter update method");
-		return teamRepository.findById(id).map(team -> {
+		return repository.findById(id).map(team -> {
 			team.setName(updatedTeam.getName());
-			team.setLeader(coderRepository.findById(id).get());
-			return teamRepository.save(team);
+			return repository.save(team);
 		}).orElseGet(() -> {
 			updatedTeam.setId(id);
-            return teamRepository.save(updatedTeam);
+            return repository.save(updatedTeam);
         });
 	}
 	
@@ -65,7 +58,7 @@ public class TeamController {
 	public void delete(@PathVariable Long id) {
 		LOG.debug("enter delete method");
 		try {
-			teamRepository.deleteById(id);
+			repository.deleteById(id);
 		}catch (EmptyResultDataAccessException ex) {
             LOG.warn("Can't delete team", ex);
             throw new TeamNotFoundException(id);
@@ -74,11 +67,4 @@ public class TeamController {
             throw new TeamNotFoundException(id);
         }
 	}
-	
-	@GetMapping("/teams/byName/{name}")
-	public Team getByName(@PathVariable String name) {
-		LOG.debug("enter get method");
-		return teamRepository.findByName(name).orElseThrow(() -> new TeamNotFoundException(name));
-	}
-	
 }
